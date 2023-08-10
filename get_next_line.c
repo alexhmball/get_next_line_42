@@ -3,114 +3,78 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aball <aball@student.42.fr>                +#+  +:+       +#+        */
+/*   By: ballzball <ballzball@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/20 23:22:31 by aball             #+#    #+#             */
-/*   Updated: 2022/02/03 18:28:17 by aball            ###   ########.fr       */
+/*   Updated: 2023/08/11 00:13:52 by ballzball        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*gnl_strchr(char *s, int c)
+static size_t	c_pos(const char *str, const char c)
 {
-	int		i;
-	char	*ptr;
+	size_t	i;
 
-	ptr = (char *)s;
 	i = 0;
-	while (ptr[i])
+	while (str && str[i])
 	{
-		if ((unsigned char)ptr[i] == (unsigned char)c)
-			return (&ptr[i + 1]);
+		if (str[i] == c)
+			return (i + 1);
 		i++;
 	}
-	if (c == '\0')
-		return (&ptr[i]);
-	return (0);
+	return (i);
 }
 
-static char	*save_line(char *s)
-{
-	int		pos;
-	int		i;
-	char	*save;
-
-	i = 0;
-	if (!s)
-		return (NULL);
-	pos = position(s);
-	save = (char *)malloc(sizeof(char) * (ft_strlen(s) - pos + 1));
-	if (!save)
-		return (NULL);
-	if (s[pos])
-	{
-		while (s[++pos])
-			save[i++] = s[pos];
-	}
-	save[i] = '\0';
-	free (s);
-	if (ft_strlen(save) == 0)
-	{
-		free (save);
-		return (0);
-	}
-	return (save);
-}
-
-static char	*reading(char *temp, char *s, int fd, int rd)
+static char	*ft_reading(int fd)
 {
 	char	*buf;
+	char	*ret;
+	int		rd;
 
-	while (gnl_strchr(temp, '\n') == 0 && rd != 0)
+	ret = NULL;
+	rd = 1;
+	while (rd > 0 && !gnl_strchr(ret, '\n'))
 	{
-		buf = (char *)malloc(BUFFER_SIZE + 1);
+		buf = (char *)malloc((size_t)((size_t)BUFFER_SIZE + 1));
 		if (!buf)
 			return (NULL);
-		s = ft_strdup(temp);
-		rd = read(fd, buf, BUFFER_SIZE);
-		buf[rd] = '\0';
-		temp = gnl_strjoin(s, buf);
+		rd = read(fd, &buf[0], BUFFER_SIZE);
+		if (rd < 0)
+		{
+			ft_free(buf);
+			return (NULL);
+		}
+		buf[rd] = 0;
+		ret = gnl_strjoin(ret, buf);
 	}
-	return (temp);
-}
-
-static char	*gnl_free(char *s, char *nextline)
-{
-	if (ft_strlen(nextline) == 0 || !nextline)
-	{
-		free(s);
-		free(nextline);
-		return (NULL);
-	}
-	return (nextline);
+	return (ret);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*s;
-	char		*temp;
-	char		*nextline;
-	char		*buf;
-	int			rd;
+	static char	*save;
+	char		*tmp;
+	char		*ret;
+	size_t		pos;
 
-	buf = (char *)malloc(BUFFER_SIZE + 1);
-	if (!buf)
-		return (0);
-	rd = read(fd, buf, BUFFER_SIZE);
-	if (rd < 0)
-	{
-		free (buf);
+	tmp = ft_reading(fd);
+	if (!tmp && !save)
 		return (NULL);
+	tmp = gnl_strjoin(save, tmp);
+	pos = c_pos(tmp, '\n');
+	if (!*tmp || pos == gnl_strlen(tmp))
+	{
+		if (!*tmp)
+			ret = NULL;
+		else
+			ret = gnl_strdup(tmp, pos);
+		ft_free(tmp);
+		save = NULL;
+		return (ret);
 	}
-	buf[rd] = '\0';
-	if (!s)
-		temp = ft_strdup(buf);
-	else
-		temp = gnl_strjoin(s, buf);
-	temp = reading(temp, s, fd, rd);
-	nextline = gnl_strcpy(temp);
-	s = save_line(temp);
-	nextline = gnl_free(s, nextline);
-	return (nextline);
+	ret = gnl_strdup(tmp, pos);
+	save = gnl_strdup(tmp + pos, gnl_strlen(tmp + pos));
+	ft_free(tmp);
+	return (ret);
 }
