@@ -3,102 +3,84 @@
 /*                                                        :::      ::::::::   */
 /*   get_next_line_utils_bonus.c                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aball <aball@student.42.fr>                +#+  +:+       +#+        */
+/*   By: ballzball <ballzball@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 18:03:05 by aball             #+#    #+#             */
-/*   Updated: 2022/02/03 17:55:54 by aball            ###   ########.fr       */
+/*   Updated: 2023/08/11 09:53:11 by ballzball        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line_bonus.h"
 
-char	*gnl_strcpy(char *src)
+void	ft_free(char *freeme)
 {
-	char	*dest;
-	int		i;
-
-	i = 0;
-	if (!src)
-		return (0);
-	dest = (char *)malloc(position(src) + 2);
-	if (!dest)
-		return (0);
-	while (src[i] && i < position(src) + 1)
-	{
-		dest[i] = src[i];
-		i++;
-	}
-	dest[i] = '\0';
-	return (dest);
+	if (freeme)
+		free(freeme);
+	freeme = NULL;
 }
 
-int	ft_strlen(const char *s)
+size_t	gnl_strlen(char *str)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
-	if (!s)
-		return (0);
-	while (s[i])
+	while (str && str[i])
 		i++;
 	return (i);
 }
 
-char	*ft_strdup(char *src)
+char	*gnl_strjoin(char *str1, char *str2)
 {
-	char	*dest;
-	int		i;
+	char	*ret;
+	size_t	i;
+	size_t	j;
 
-	i = 0;
-	if (!src)
-		return (0);
-	dest = (char *)malloc(ft_strlen(src) + 1);
-	if (dest == NULL)
+	ret = (char *)malloc(gnl_strlen(str1) + gnl_strlen(str2) + 1);
+	if (!ret)
 		return (NULL);
-	while (src[i])
+	i = 0;
+	while (str1 && str1[i])
 	{
-		dest[i] = src[i];
+		ret[i] = str1[i];
 		i++;
 	}
-	dest[i] = '\0';
-	free (src);
-	return (dest);
-}
-
-char	*gnl_strjoin(char *s1, char *s2)
-{
-	char	*joint;
-	int		i;
-	int		j;
-
-	i = 0;
 	j = 0;
-	if (!s1 || !s2)
-		return (0);
-	joint = (char *)malloc((ft_strlen(s1) + ft_strlen(s2) + 1));
-	if (joint == NULL)
-		return (0);
-	while (s1[i])
-	{
-		joint[i] = s1[i];
-		i++;
-	}
-	while (s2[j])
-	{
-		joint[i++] = s2[j++];
-	}
-	joint[i] = '\0';
-	free (s1);
-	free (s2);
-	return (joint);
+	while (str2 && str2[j])
+		ret[i++] = str2[j++];
+	ft_free(str1);
+	ft_free(str2);
+	ret[i] = 0;
+	return (ret);
 }
 
-int	position(char *s)
+char	*gnl_strchr(char *str, const char c)
 {
-	int	i;
+	size_t	i;
 
 	i = 0;
-	while (s[i] != '\n' && s[i])
+	while (str && str[i])
+	{
+		if (str[i] == c)
+			return (str + i);
 		i++;
-	return (i);
+	}
+	return (NULL);
+}
+
+char	*gnl_strdup(const char *str, size_t len)
+{
+	size_t	i;
+	char	*ret;
+
+	i = 0;
+	ret = (char *)malloc(len + 1);
+	if (!ret)
+		return (NULL);
+	while (str && str[i] && i < len)
+	{
+		ret[i] = str[i];
+		i++;
+	}
+	ret[i] = 0;
+	return (ret);
 }

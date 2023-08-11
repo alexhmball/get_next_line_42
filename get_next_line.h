@@ -6,15 +6,17 @@
 /*   By: ballzball <ballzball@student.42.fr>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 02:52:44 by aball             #+#    #+#             */
-/*   Updated: 2023/08/11 00:14:00 by ballzball        ###   ########.fr       */
+/*   Updated: 2023/08/11 09:46:49 by ballzball        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
 # define GET_NEXT_LINE_H
 
+#include <limits.h>
+
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 4200000
+#  define BUFFER_SIZE INT_MAX
 # endif
 
 # include <stdlib.h>
